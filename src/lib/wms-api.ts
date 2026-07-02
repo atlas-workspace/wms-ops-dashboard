@@ -171,7 +171,7 @@ export async function fetchOwnershipCards(): Promise<OwnershipCard[] | null> {
           employeeId: item.employeeId ? String(item.employeeId) : undefined,
           department: item.department ? String(item.department) : item.deptName ? String(item.deptName) : undefined,
           role: item.position ? String(item.position) : item.jobTitle ? String(item.jobTitle) : undefined,
-          status: "active",
+          status: item.status ? String(item.status) : undefined,
         }));
       }
     }

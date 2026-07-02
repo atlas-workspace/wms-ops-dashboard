@@ -14,6 +14,7 @@ import {
   TaskActionStats,
 } from "@/lib/wms-api";
 import { OrdersDonutChart } from "@/components/OrdersDonutChart";
+import { DataSourceBadge } from "@/components/DataSourceBadge";
 
 interface DashboardData {
   shipment: ShipmentStats | null;
@@ -103,8 +104,9 @@ export default function TeamDashboardPage() {
                 <span className="text-lg font-bold text-[#0066cc]">—</span>
                 <span className="text-lg font-bold text-[#0066cc] uppercase">{facilityLabel}</span>
               </div>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-sm text-gray-500 mt-0.5 flex items-center gap-2">
                 {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+                <DataSourceBadge source="Live WMS" />
               </p>
             </div>
           </div>
@@ -137,6 +139,7 @@ export default function TeamDashboardPage() {
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <span className="w-1 h-4 bg-[#0066cc] rounded-full"></span>
             Productivity By Employee
+            <DataSourceBadge source="Live WMS" />
           </h3>
           <ProductivityBars progress={data.progress} loading={data.loading} />
         </div>
@@ -144,6 +147,7 @@ export default function TeamDashboardPage() {
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <span className="w-1 h-4 bg-[#10b981] rounded-full"></span>
             Orders By Status
+            <DataSourceBadge source="Live WMS" />
           </h3>
           <OrdersDonutChart progress={data.progress} loading={data.loading} onSegmentClick={(status) => router.push(`/dashboard/orders?status=${status}`)} />
         </div>
@@ -151,6 +155,7 @@ export default function TeamDashboardPage() {
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <span className="w-1 h-4 bg-[#f59e0b] rounded-full"></span>
             Activity Overview
+            <DataSourceBadge source="Live WMS" />
           </h3>
           <ActivityBars taskStats={data.taskStats} loading={data.loading} />
         </div>
@@ -162,6 +167,7 @@ export default function TeamDashboardPage() {
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <span className="w-1 h-4 bg-[#8b5cf6] rounded-full"></span>
             Case Information
+            <DataSourceBadge source="Live WMS" />
           </h3>
           <CaseInformation shipment={data.shipment} />
         </div>
@@ -169,6 +175,7 @@ export default function TeamDashboardPage() {
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <span className="w-1 h-4 bg-[#f59e0b] rounded-full"></span>
             Top Performers Today
+            <DataSourceBadge source="HRM" status="pending" />
           </h3>
           <TopPerformers />
         </div>
@@ -176,6 +183,7 @@ export default function TeamDashboardPage() {
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <span className="w-1 h-4 bg-[#14b8a6] rounded-full"></span>
             Team Summary
+            <DataSourceBadge source="Live WMS" />
           </h3>
           <TeamSummary progress={data.progress} />
         </div>
@@ -183,6 +191,7 @@ export default function TeamDashboardPage() {
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <span className="w-1 h-4 bg-[#ef4444] rounded-full"></span>
             Alerts &amp; Coaching
+            <DataSourceBadge source="Alerts" status="pending" />
           </h3>
           <AlertsCoaching />
         </div>
@@ -354,7 +363,8 @@ function AlertsCoaching() {
       <svg className="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
       </svg>
-      <p>No active alerts</p>
+      <p>Alert feed is not connected yet</p>
+      <p className="text-xs text-gray-300 mt-1">No alert status is shown unless a live source is available.</p>
       <button onClick={() => window.location.href = "/dashboard/coaching"} className="text-xs text-[#0066cc] hover:underline mt-1">View Coaching</button>
     </div>
   );
