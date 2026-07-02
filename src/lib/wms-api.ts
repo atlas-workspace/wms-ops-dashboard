@@ -4,12 +4,15 @@ import { getWmsHeaders, getWmsBaseUrl, getStoredAuth } from "./auth";
 
 const HRM_BASE_URL = "https://hrm.item.com";
 
-async function wmsPost<T>(path: string, body?: unknown): Promise<T | null> {
+async function wmsPost<T>(path: string, body?: unknown, timeoutMs = 12000): Promise<T | null> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(`${getWmsBaseUrl()}${path}`, {
       method: "POST",
       headers: getWmsHeaders(),
       body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
     });
     const json = await res.json();
     if (json.success || String(json.code) === "0") {
@@ -18,14 +21,19 @@ async function wmsPost<T>(path: string, body?: unknown): Promise<T | null> {
     return null;
   } catch {
     return null;
+  } finally {
+    window.clearTimeout(timeout);
   }
 }
 
-async function wmsGet<T>(path: string): Promise<T | null> {
+async function wmsGet<T>(path: string, timeoutMs = 12000): Promise<T | null> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(`${getWmsBaseUrl()}${path}`, {
       method: "GET",
       headers: getWmsHeaders(),
+      signal: controller.signal,
     });
     const json = await res.json();
     if (json.success || String(json.code) === "0") {
@@ -34,6 +42,8 @@ async function wmsGet<T>(path: string): Promise<T | null> {
     return null;
   } catch {
     return null;
+  } finally {
+    window.clearTimeout(timeout);
   }
 }
 
@@ -65,10 +75,22 @@ export async function getDailyShipmentStats(date?: string): Promise<ShipmentStat
 }
 
 export async function getShipmentProgress(): Promise<ShipmentProgress | null> {
-  return wmsPost<ShipmentProgress>("/wms-bam/outbound/shipment-progress/summary", {
+  const data = await wmsPost<Partial<ShipmentProgress> & { completedStores?: number; totalStores?: number }>("/wms-bam/outbound/shipment-progress/summary", {
     currentPage: 1,
     pageSize: 100,
   });
+  if (!data) return null;
+  const requiredQty = Number(data.requiredQty ?? data.totalStores ?? 0);
+  const pickedQty = Number(data.pickedQty ?? data.completedStores ?? 0);
+  const unpickedQty = Number(data.unpickedQty ?? Math.max(requiredQty - pickedQty, 0));
+  return {
+    requiredQty,
+    shippedQty: Number(data.shippedQty ?? data.completedStores ?? 0),
+    pickedQty,
+    unpickedQty,
+    uncommitQty: Number(data.uncommitQty ?? 0),
+    progressRate: Number(data.progressRate ?? (requiredQty > 0 ? pickedQty / requiredQty : 0)),
+  };
 }
 
 export async function getTaskActionStats(actionTypes?: string[]): Promise<TaskActionStats | null> {
@@ -107,7 +129,7 @@ export async function searchOrders(params?: Record<string, unknown>): Promise<Or
     currentPage: 1,
     pageSize: 20,
     ...params,
-  });
+  }, 6000);
 }
 
 export async function getDeviceStatusSummary(): Promise<Record<string, unknown> | null> {
