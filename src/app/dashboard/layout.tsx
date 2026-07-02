@@ -123,6 +123,8 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
               <option value="LT_ORG-7759">Fontana</option>
               <option value="LT_ORG-7941">Willow</option>
               <option value="LT_ORG-61213">Joliet</option>
+              <option value="LT_ORG-35184">Savannah</option>
+              <option value="LT_F19">Seabrook</option>
               <option value="BUENA_PARK">Buena Park</option>
             </select>
           </div>

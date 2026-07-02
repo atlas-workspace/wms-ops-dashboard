@@ -125,11 +125,37 @@ export interface OrderSearchResult {
 }
 
 export async function searchOrders(params?: Record<string, unknown>): Promise<OrderSearchResult | null> {
-  return wmsPost<OrderSearchResult>("/wms-bam/outbound/order/raw-search", {
+  const body = {
     currentPage: 1,
     pageSize: 20,
     ...params,
-  }, 6000);
+  };
+  try {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 25000);
+    const res = await fetch(`${getWmsBaseUrl()}/wms-bam/outbound/order/raw-search`, {
+      method: "POST",
+      headers: getWmsHeaders(),
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    window.clearTimeout(timeout);
+    const json = await res.json();
+    if (!(json.success || String(json.code) === "0")) return null;
+    const data = json.data;
+    if (Array.isArray(data)) {
+      return { records: data as OrderRecord[], total: data.length };
+    }
+    if (data && typeof data === "object") {
+      const obj = data as Record<string, unknown>;
+      const records = (obj.records || obj.list || obj.content || obj.items) as OrderRecord[] | undefined;
+      const total = Number(obj.total ?? obj.totalCount ?? obj.totalElements ?? (records ? records.length : 0));
+      return { records: records || [], total };
+    }
+    return { records: [], total: 0 };
+  } catch {
+    return null;
+  }
 }
 
 export async function getDeviceStatusSummary(): Promise<Record<string, unknown> | null> {

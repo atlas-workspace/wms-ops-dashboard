@@ -41,7 +41,7 @@ export default function TeamDashboardPage() {
         getDailyShipmentStats(),
         getShipmentProgress(),
         getTaskActionStats(),
-        searchOrders({ currentPage: 1, pageSize: 1 }),
+        searchOrders({ currentPage: 1, pageSize: 1, statuses: ["OPEN", "COMMITTED", "PARTIAL_COMMITTED", "PICKED", "PACKED", "STAGED", "LOADED", "READY_TO_SHIP"] }),
       ]);
 
       const shipment = shipmentResult.status === "fulfilled" ? shipmentResult.value : null;
