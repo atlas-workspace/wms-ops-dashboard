@@ -31,9 +31,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.push("/");
       return;
     }
-    setUser(auth.user);
-    setFacility(getStoredFacility() || "BUENA_PARK");
-    if (!getStoredFacility()) storeFacility("BUENA_PARK");
+    setUser({
+      username: auth.user.username || "User",
+      tenantId: auth.user.tenantId || "LT",
+    });
+    setFacility(getStoredFacility() || "LT_F1");
+    if (!getStoredFacility()) storeFacility("LT_F1");
 
     const interval = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(interval);
@@ -96,8 +99,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               onChange={(e) => { setFacility(e.target.value); storeFacility(e.target.value); }}
               className="w-full bg-[#252540] text-white text-xs rounded px-2 py-1.5 border border-white/10 focus:outline-none"
             >
-              <option value="BUENA_PARK">Buena Park</option>
-              <option value="LT_F1">LT Facility 1</option>
+              <option value="LT_F1">Valley View</option>
+              <option value="LT_ORG-7759">Fontana</option>
+              <option value="LT_ORG-7941">Willow</option>
+              <option value="LT_ORG-61213">Joliet</option>
             </select>
           </div>
 

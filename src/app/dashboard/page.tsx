@@ -36,20 +36,35 @@ export default function DashboardPage() {
 
     setData((prev) => ({ ...prev, loading: true }));
 
-    const [shipment, progress, taskStats, orders] = await Promise.all([
-      getDailyShipmentStats(),
-      getShipmentProgress(),
-      getTaskActionStats(),
-      searchOrders({ currentPage: 1, pageSize: 1 }),
-    ]);
+    try {
+      const [shipmentResult, progressResult, taskStatsResult, ordersResult] = await Promise.allSettled([
+        getDailyShipmentStats(),
+        getShipmentProgress(),
+        getTaskActionStats(),
+        searchOrders({ currentPage: 1, pageSize: 1 }),
+      ]);
 
-    setData({
-      shipment,
-      progress,
-      taskStats,
-      orderCount: orders?.total ?? null,
-      loading: false,
-    });
+      const shipment = shipmentResult.status === "fulfilled" ? shipmentResult.value : null;
+      const progress = progressResult.status === "fulfilled" ? progressResult.value : null;
+      const taskStats = taskStatsResult.status === "fulfilled" ? taskStatsResult.value : null;
+      const orders = ordersResult.status === "fulfilled" ? ordersResult.value : null;
+
+      setData({
+        shipment,
+        progress,
+        taskStats,
+        orderCount: orders?.total ?? null,
+        loading: false,
+      });
+    } catch {
+      setData({
+        shipment: null,
+        progress: null,
+        taskStats: null,
+        orderCount: null,
+        loading: false,
+      });
+    }
   }, []);
 
   useEffect(() => {
