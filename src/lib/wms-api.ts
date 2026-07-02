@@ -144,12 +144,10 @@ export async function fetchOwnershipCards(): Promise<OwnershipCard[] | null> {
     const auth = getStoredAuth();
     if (!auth) return null;
 
-    const res = await fetch(`${HRM_BASE_URL}/ownership-card`, {
+    const res = await fetch(`/api/hrm/supervisors?pageSize=50&pageIndex=1&isAll=false`, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${auth.accessToken}`,
-        "x-tenant-id": auth.user.tenantId || "LT",
       },
     });
 
@@ -160,10 +158,23 @@ export async function fetchOwnershipCards(): Promise<OwnershipCard[] | null> {
 
     const json: HrmResponse = await res.json();
 
-    if (Array.isArray(json.data)) return json.data;
-    if (Array.isArray(json.items)) return json.items;
-    if (Array.isArray(json.records)) return json.records;
-    if (json.data && typeof json.data === "object" && !Array.isArray(json.data)) return [json.data];
+    const payload = json.data ?? json;
+    if (Array.isArray(payload)) return payload as OwnershipCard[];
+    if (payload && typeof payload === "object") {
+      const obj = payload as Record<string, unknown>;
+      const items = obj.records || obj.list || obj.content || obj.items;
+      if (Array.isArray(items)) {
+        return (items as Record<string, unknown>[]).map((item) => ({
+          id: String(item.id ?? item.userId ?? item.employeeId ?? ""),
+          name: String(item.name ?? item.employeeName ?? item.userName ?? item.label ?? ""),
+          displayName: String(item.name ?? item.employeeName ?? item.userName ?? item.label ?? ""),
+          employeeId: item.employeeId ? String(item.employeeId) : undefined,
+          department: item.department ? String(item.department) : item.deptName ? String(item.deptName) : undefined,
+          role: item.position ? String(item.position) : item.jobTitle ? String(item.jobTitle) : undefined,
+          status: "active",
+        }));
+      }
+    }
     return null;
   } catch {
     return null;

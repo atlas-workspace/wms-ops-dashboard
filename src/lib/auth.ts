@@ -182,3 +182,49 @@ export function getWmsHeaders(): Record<string, string> {
 export function getWmsBaseUrl(): string {
   return WMS_API_BASE_URL;
 }
+
+export function validateTokenStructure(token: string): boolean {
+  const cleaned = token.trim().replace(/^Bearer\s+/i, "");
+  const parts = cleaned.split(".");
+  if (parts.length !== 3) return false;
+  try {
+    decodeJwt(cleaned);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function loginWithToken(rawToken: string): TokenData {
+  const token = rawToken.trim().replace(/^Bearer\s+/i, "");
+
+  let payload: Record<string, unknown> = {};
+  try {
+    payload = decodeJwt(token) as Record<string, unknown>;
+  } catch {
+    throw new Error("This does not appear to be a valid session token.");
+  }
+
+  const data = (payload.data && typeof payload.data === "object" ? payload.data : payload) as Record<string, unknown>;
+
+  const userId = String(data.user_id ?? data.userId ?? payload.sub ?? "");
+  const tenantId = String(data.tenant_id ?? data.tenantId ?? data.company_code ?? DEFAULT_TENANT_ID);
+  const username = String(data.user_name ?? data.username ?? data.name ?? payload.sub ?? "");
+
+  if (!userId && !username) {
+    throw new Error("Could not resolve your identity from this token. Please use a valid Item IAM session token.");
+  }
+
+  return {
+    accessToken: token,
+    refreshToken: "",
+    expiresIn: 0,
+    user: {
+      userId: userId || username,
+      tenantId,
+      username: username || userId,
+      facilityId: DEFAULT_FACILITY_ID,
+      facilities: [],
+    },
+  };
+}
