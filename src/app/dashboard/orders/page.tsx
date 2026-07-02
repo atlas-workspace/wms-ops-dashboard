@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useApp } from "@/lib/app-context";
 import { searchOrders, OrderRecord } from "@/lib/wms-api";
+import { resolveCustomerNames } from "@/lib/customer-names";
 import { DataSourceBadge } from "@/components/DataSourceBadge";
 
 const ACTIVE_STATUSES = ["OPEN", "COMMITTED", "PARTIAL_COMMITTED", "PICKED", "PACKED", "STAGED", "LOADED", "READY_TO_SHIP", "PLANNED", "PLANNING", "PICKING", "PACKING", "LOADING"];
@@ -31,6 +32,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState<FetchState>("loading");
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState(urlStatus || "active");
+  const [customerNames, setCustomerNames] = useState<Map<string, string>>(new Map());
 
   const fetchOrders = useCallback(async () => {
     setLoading("loading");
@@ -48,9 +50,15 @@ export default function OrdersPage() {
       setTotal(null);
       setLoading("error");
     } else {
-      setOrders(result.records || []);
+      const records = result.records || [];
+      setOrders(records);
       setTotal(result.total ?? 0);
       setLoading("success");
+
+      const uniqueIds = [...new Set(records.map((o) => o.customerId).filter(Boolean) as string[])];
+      if (uniqueIds.length > 0) {
+        resolveCustomerNames(uniqueIds).then(setCustomerNames);
+      }
     }
   }, [page, statusFilter]);
 
@@ -142,7 +150,7 @@ export default function OrdersPage() {
                     <td className="px-4 py-2.5 font-mono text-xs text-gray-700">{order.id || "—"}</td>
                     <td className="px-4 py-2.5 text-gray-700 text-xs">{(order.referenceNo as string) || (order.poNo as string) || (order.soNo as string) || "—"}</td>
                     <td className="px-4 py-2.5"><StatusBadge status={order.status} /></td>
-                    <td className="px-4 py-2.5 text-gray-600 text-xs">{order.customerId || "—"}</td>
+                    <td className="px-4 py-2.5"><CustomerCell customerId={order.customerId} customerNames={customerNames} /></td>
                     <td className="px-4 py-2.5 text-gray-500 text-xs">{(order.orderType as string) || "—"}</td>
                     <td className="px-4 py-2.5 text-gray-500 text-xs">{(order.scheduleDate as string) ? new Date(order.scheduleDate as string).toLocaleDateString() : "—"}</td>
                   </tr>
@@ -189,4 +197,18 @@ function StatusBadge({ status }: { status?: string }) {
   };
   const cls = colors[status] || "bg-gray-100 text-gray-600";
   return <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${cls}`}>{status.replace(/_/g, " ")}</span>;
+}
+
+function CustomerCell({ customerId, customerNames }: { customerId?: string; customerNames: Map<string, string> }) {
+  if (!customerId) return <span className="text-gray-400 text-xs">—</span>;
+  const name = customerNames.get(customerId);
+  if (name && name !== customerId) {
+    return (
+      <div className="text-xs">
+        <div className="text-gray-800 font-medium">{name}</div>
+        <div className="text-gray-400 text-[10px]">{customerId}</div>
+      </div>
+    );
+  }
+  return <span className="text-gray-500 text-xs italic">{customerId}</span>;
 }
