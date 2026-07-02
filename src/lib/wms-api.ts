@@ -1,6 +1,8 @@
 "use client";
 
-import { getWmsHeaders, getWmsBaseUrl } from "./auth";
+import { getWmsHeaders, getWmsBaseUrl, getStoredAuth } from "./auth";
+
+const HRM_BASE_URL = "https://hrm.item.com";
 
 async function wmsPost<T>(path: string, body?: unknown): Promise<T | null> {
   try {
@@ -8,6 +10,22 @@ async function wmsPost<T>(path: string, body?: unknown): Promise<T | null> {
       method: "POST",
       headers: getWmsHeaders(),
       body: body ? JSON.stringify(body) : undefined,
+    });
+    const json = await res.json();
+    if (json.success || String(json.code) === "0") {
+      return json.data as T;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function wmsGet<T>(path: string): Promise<T | null> {
+  try {
+    const res = await fetch(`${getWmsBaseUrl()}${path}`, {
+      method: "GET",
+      headers: getWmsHeaders(),
     });
     const json = await res.json();
     if (json.success || String(json.code) === "0") {
@@ -69,9 +87,19 @@ export async function getTaskStatusSummary(taskType?: string): Promise<Record<st
   });
 }
 
+export interface OrderRecord {
+  id?: string;
+  orderId?: string;
+  orderNo?: string;
+  status?: string;
+  customerId?: string;
+  createdTime?: string;
+  [key: string]: unknown;
+}
+
 export interface OrderSearchResult {
   total?: number;
-  records?: Array<Record<string, unknown>>;
+  records?: OrderRecord[];
 }
 
 export async function searchOrders(params?: Record<string, unknown>): Promise<OrderSearchResult | null> {
@@ -80,4 +108,87 @@ export async function searchOrders(params?: Record<string, unknown>): Promise<Or
     pageSize: 20,
     ...params,
   });
+}
+
+export async function getDeviceStatusSummary(): Promise<Record<string, unknown> | null> {
+  return wmsGet<Record<string, unknown>>("/wms-bam/wcs/device-status-summary/all");
+}
+
+// HRM Ownership Card integration
+export interface OwnershipCard {
+  id?: string;
+  userId?: string;
+  employeeId?: string;
+  name?: string;
+  displayName?: string;
+  role?: string;
+  team?: string;
+  department?: string;
+  avatar?: string;
+  status?: string;
+  [key: string]: unknown;
+}
+
+export interface HrmResponse {
+  data?: OwnershipCard[] | OwnershipCard | null;
+  items?: OwnershipCard[];
+  records?: OwnershipCard[];
+  code?: number | string;
+  success?: boolean;
+  message?: string;
+  error?: string;
+}
+
+export async function fetchOwnershipCards(): Promise<OwnershipCard[] | null> {
+  try {
+    const auth = getStoredAuth();
+    if (!auth) return null;
+
+    const res = await fetch(`${HRM_BASE_URL}/ownership-card`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${auth.accessToken}`,
+        "x-tenant-id": auth.user.tenantId || "LT",
+      },
+    });
+
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) return null;
+      return null;
+    }
+
+    const json: HrmResponse = await res.json();
+
+    if (Array.isArray(json.data)) return json.data;
+    if (Array.isArray(json.items)) return json.items;
+    if (Array.isArray(json.records)) return json.records;
+    if (json.data && typeof json.data === "object" && !Array.isArray(json.data)) return [json.data];
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchOwnershipCardById(id: string): Promise<OwnershipCard | null> {
+  try {
+    const auth = getStoredAuth();
+    if (!auth) return null;
+
+    const res = await fetch(`${HRM_BASE_URL}/ownership-card/${encodeURIComponent(id)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${auth.accessToken}`,
+        "x-tenant-id": auth.user.tenantId || "LT",
+      },
+    });
+
+    if (!res.ok) return null;
+
+    const json = await res.json();
+    return (json.data as OwnershipCard) || null;
+  } catch {
+    return null;
+  }
 }

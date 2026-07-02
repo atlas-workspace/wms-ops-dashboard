@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { login, storeAuth } from "@/lib/auth";
+import { login, storeAuth, clearAuth, getStoredAuth } from "@/lib/auth";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -10,6 +10,17 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const auth = getStoredAuth();
+      if (auth?.accessToken && auth?.user?.username) {
+        router.push("/dashboard");
+      }
+    } catch {
+      clearAuth();
+    }
+  }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -20,7 +31,7 @@ export default function LoginPage() {
       storeAuth(data);
       router.push("/dashboard");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(err instanceof Error ? err.message : "Login failed. Check your credentials and try again.");
     } finally {
       setLoading(false);
     }

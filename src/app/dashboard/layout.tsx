@@ -1,28 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getStoredAuth, clearAuth, getStoredFacility, storeFacility } from "@/lib/auth";
+import { useRouter, usePathname } from "next/navigation";
+import { getStoredAuth, clearAuth } from "@/lib/auth";
+import { AppProvider, useApp } from "@/lib/app-context";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const menuItems = [
-  { id: "team-dashboard", label: "Team Dashboard", active: true, icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" },
-  { id: "dashboard", label: "Dashboard", icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" },
-  { id: "orders", label: "Orders & Units", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
-  { id: "employees", label: "Employees", icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" },
-  { id: "productivity", label: "Productivity", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
-  { id: "attendance", label: "Attendance", icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
-  { id: "quality", label: "Quality", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
-  { id: "exceptions", label: "Exceptions", icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" },
-  { id: "reports", label: "Reports", icon: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
-  { id: "trends", label: "Trends", icon: "M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" },
-  { id: "coaching", label: "Coaching", icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" },
-  { id: "settings", label: "Settings", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" },
+  { id: "team-dashboard", path: "/dashboard", label: "Team Dashboard", icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" },
+  { id: "dashboard", path: "/dashboard/overview", label: "Dashboard", icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" },
+  { id: "orders", path: "/dashboard/orders", label: "Orders & Units", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
+  { id: "employees", path: "/dashboard/employees", label: "Employees", icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" },
+  { id: "productivity", path: "/dashboard/productivity", label: "Productivity", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
+  { id: "attendance", path: "/dashboard/attendance", label: "Attendance", icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
+  { id: "quality", path: "/dashboard/quality", label: "Quality", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
+  { id: "exceptions", path: "/dashboard/exceptions", label: "Exceptions", icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" },
+  { id: "reports", path: "/dashboard/reports", label: "Reports", icon: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
+  { id: "trends", path: "/dashboard/trends", label: "Trends", icon: "M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" },
+  { id: "coaching", path: "/dashboard/coaching", label: "Coaching", icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" },
+  { id: "settings", path: "/dashboard/settings", label: "Settings", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" },
 ];
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const { facility, setFacility, triggerRefresh } = useApp();
   const [user, setUser] = useState<{ username: string; tenantId: string } | null>(null);
-  const [facility, setFacility] = useState("");
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -31,16 +34,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.push("/");
       return;
     }
-    setUser({
-      username: auth.user.username || "User",
-      tenantId: auth.user.tenantId || "LT",
-    });
-    setFacility(getStoredFacility() || "LT_F1");
-    if (!getStoredFacility()) storeFacility("LT_F1");
+    try {
+      if (!auth.user || !auth.user.username) {
+        clearAuth();
+        router.push("/");
+        return;
+      }
+      setUser(auth.user);
+    } catch {
+      clearAuth();
+      router.push("/");
+    }
+  }, [router]);
 
+  useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(interval);
-  }, [router]);
+  }, []);
 
   function handleLogout() {
     clearAuth();
@@ -49,9 +59,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (!user) return null;
 
+  const facilityLabel = facility.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      {/* Top Header Bar - White with UNIS/VERINT branding */}
       <header className="h-12 bg-white border-b border-gray-200 flex items-center px-4 shrink-0 z-50">
         <div className="flex items-center gap-3">
           <div className="bg-[#1a1a2e] text-white font-bold text-sm px-2.5 py-0.5 rounded tracking-wide">
@@ -67,21 +78,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </svg>
           <span className="text-gray-400">/</span>
           <span className="font-medium text-gray-800">Operations Manager</span>
+          <span className="text-gray-400">/</span>
+          <span className="text-gray-500">{facilityLabel}</span>
         </div>
-        <div className="ml-auto flex items-center gap-4 text-sm">
+        <div className="ml-auto flex items-center gap-3 text-sm">
+          <button
+            onClick={triggerRefresh}
+            className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+            title="Refresh data"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
           <span className="text-gray-500">
-            {now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
+            {now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
           </span>
-          <span className="text-gray-500">
+          <span className="text-gray-400">
             {now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ml-2">
             <div className="w-7 h-7 rounded-full bg-[#0066cc] flex items-center justify-center text-white text-xs font-medium">
               {user.username.charAt(0).toUpperCase()}
             </div>
             <span className="text-gray-700 font-medium">{user.username}</span>
           </div>
-          <button onClick={handleLogout} className="text-gray-400 hover:text-gray-600" title="Sign out">
+          <button onClick={handleLogout} className="text-gray-400 hover:text-gray-600 p-1" title="Sign out">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
@@ -90,42 +112,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Sidebar - Dark Navy */}
         <aside className="w-56 bg-[#1a1a2e] flex flex-col shrink-0">
-          {/* Facility selector */}
           <div className="px-4 py-3 border-b border-white/10">
             <select
               value={facility}
-              onChange={(e) => { setFacility(e.target.value); storeFacility(e.target.value); }}
+              onChange={(e) => setFacility(e.target.value)}
               className="w-full bg-[#252540] text-white text-xs rounded px-2 py-1.5 border border-white/10 focus:outline-none"
             >
               <option value="LT_F1">Valley View</option>
               <option value="LT_ORG-7759">Fontana</option>
               <option value="LT_ORG-7941">Willow</option>
               <option value="LT_ORG-61213">Joliet</option>
+              <option value="BUENA_PARK">Buena Park</option>
             </select>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 py-2 overflow-y-auto scrollbar-thin">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${
-                  item.active
-                    ? "bg-[#0066cc]/20 text-white border-l-3 border-[#0066cc]"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
-                </svg>
-                <span className={item.active ? "font-medium" : ""}>{item.label}</span>
-              </button>
-            ))}
+            {menuItems.map((item) => {
+              const isActive = pathname === item.path || (item.path === "/dashboard" && pathname === "/dashboard");
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => router.push(item.path)}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${
+                    isActive
+                      ? "bg-[#0066cc]/20 text-white border-l-3 border-[#0066cc]"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                  </svg>
+                  <span className={isActive ? "font-medium" : ""}>{item.label}</span>
+                </button>
+              );
+            })}
           </nav>
 
-          {/* Warehouse illustration area */}
           <div className="px-4 py-3 border-t border-white/10">
             <div className="bg-[#252540] rounded-lg p-3">
               <div className="flex items-center justify-center mb-2">
@@ -138,7 +161,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </div>
 
-          {/* System status */}
           <div className="px-4 py-3 border-t border-white/10">
             <div className="flex items-center gap-2 text-xs text-gray-400">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
@@ -153,11 +175,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </aside>
 
-        {/* Main content */}
         <main className="flex-1 overflow-y-auto bg-[#f0f2f5] p-5">
-          {children}
+          <ErrorBoundary>{children}</ErrorBoundary>
         </main>
       </div>
     </div>
+  );
+}
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AppProvider>
+      <DashboardShell>{children}</DashboardShell>
+    </AppProvider>
   );
 }
