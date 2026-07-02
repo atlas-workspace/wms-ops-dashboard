@@ -9,9 +9,13 @@ import {
   getShipmentProgress,
   getTaskActionStats,
   searchOrders,
+  getOrderStatusBreakdown,
+  breakdownToShipmentStats,
+  breakdownToProgress,
   ShipmentStats,
   ShipmentProgress,
   TaskActionStats,
+  OrderStatusBreakdown,
 } from "@/lib/wms-api";
 import { OrdersDonutChart } from "@/components/OrdersDonutChart";
 import { DataSourceBadge } from "@/components/DataSourceBadge";
@@ -21,14 +25,16 @@ interface DashboardData {
   progress: ShipmentProgress | null;
   taskStats: TaskActionStats | null;
   orderCount: number | null;
+  breakdown: OrderStatusBreakdown | null;
   loading: boolean;
+  shipmentSource: "endpoint" | "orders" | null;
 }
 
 export default function TeamDashboardPage() {
   const router = useRouter();
   const { facility, refreshKey } = useApp();
   const [data, setData] = useState<DashboardData>({
-    shipment: null, progress: null, taskStats: null, orderCount: null, loading: true,
+    shipment: null, progress: null, taskStats: null, orderCount: null, breakdown: null, loading: true, shipmentSource: null,
   });
   const [drilldown, setDrilldown] = useState<string | null>(null);
 
@@ -49,12 +55,38 @@ export default function TeamDashboardPage() {
       const taskStats = taskStatsResult.status === "fulfilled" ? taskStatsResult.value : null;
       const orders = ordersResult.status === "fulfilled" ? ordersResult.value : null;
 
+      // If dedicated shipment/progress endpoints returned null or all-zero,
+      // fall back to order-status breakdown derived from live order search
+      const shipmentEmpty = !shipment || (shipment.actualQty === 0 && shipment.unshippedQty === 0 && shipment.plannedShipmentQty === 0);
+      const progressEmpty = !progress || (progress.requiredQty === 0 && progress.shippedQty === 0 && progress.pickedQty === 0);
+
+      let finalShipment = shipment;
+      let finalProgress = progress;
+      let breakdown: OrderStatusBreakdown | null = null;
+      let shipmentSource: "endpoint" | "orders" | null = shipmentEmpty ? null : "endpoint";
+
+      if ((shipmentEmpty || progressEmpty) && orders && (orders.total ?? 0) > 0) {
+        const bd = await getOrderStatusBreakdown();
+        if (bd && bd.total > 0) {
+          breakdown = bd;
+          if (shipmentEmpty) {
+            finalShipment = breakdownToShipmentStats(bd);
+            shipmentSource = "orders";
+          }
+          if (progressEmpty) {
+            finalProgress = breakdownToProgress(bd);
+          }
+        }
+      }
+
       setData({
-        shipment,
-        progress,
+        shipment: finalShipment,
+        progress: finalProgress,
         taskStats,
         orderCount: orders?.total ?? null,
+        breakdown,
         loading: false,
+        shipmentSource,
       });
     } catch {
       setData({
@@ -62,7 +94,9 @@ export default function TeamDashboardPage() {
         progress: null,
         taskStats: null,
         orderCount: null,
+        breakdown: null,
         loading: false,
+        shipmentSource: null,
       });
     }
   }, []);

@@ -162,6 +162,60 @@ export async function getDeviceStatusSummary(): Promise<Record<string, unknown> 
   return wmsGet<Record<string, unknown>>("/wms-bam/wcs/device-status-summary/all");
 }
 
+// Order-derived status breakdown as fallback for shipment/progress endpoints
+const SHIPPED_STATUSES = ["SHIPPED", "DELIVERED", "COMPLETED"];
+const PICKED_STATUSES = ["PICKED", "PACKED", "STAGED", "LOADED", "READY_TO_SHIP"];
+const OPEN_STATUSES = ["OPEN", "COMMITTED", "PARTIAL_COMMITTED", "PLANNING", "PLANNED"];
+
+export interface OrderStatusBreakdown {
+  total: number;
+  shipped: number;
+  picked: number;
+  open: number;
+  other: number;
+}
+
+export async function getOrderStatusBreakdown(): Promise<OrderStatusBreakdown | null> {
+  const allStatuses = [...SHIPPED_STATUSES, ...PICKED_STATUSES, ...OPEN_STATUSES];
+  const result = await searchOrders({ currentPage: 1, pageSize: 200, statuses: allStatuses });
+  if (!result) return null;
+  const records = result.records || [];
+  let shipped = 0, picked = 0, open = 0, other = 0;
+  for (const r of records) {
+    const s = (r.status || "").toUpperCase();
+    if (SHIPPED_STATUSES.includes(s)) shipped++;
+    else if (PICKED_STATUSES.includes(s)) picked++;
+    else if (OPEN_STATUSES.includes(s)) open++;
+    else other++;
+  }
+  const total = result.total ?? records.length;
+  return { total, shipped, picked, open, other };
+}
+
+export function breakdownToShipmentStats(b: OrderStatusBreakdown): ShipmentStats {
+  return {
+    plannedShipmentQty: b.total,
+    actualQty: b.shipped,
+    unshippedQty: b.total - b.shipped,
+    completionRate: b.total > 0 ? b.shipped / b.total : 0,
+    statisticsDate: new Date().toISOString().slice(0, 10),
+  };
+}
+
+export function breakdownToProgress(b: OrderStatusBreakdown): ShipmentProgress {
+  const required = b.total;
+  const pickedQty = b.picked + b.shipped;
+  const unpicked = Math.max(required - pickedQty, 0);
+  return {
+    requiredQty: required,
+    shippedQty: b.shipped,
+    pickedQty,
+    unpickedQty: unpicked,
+    uncommitQty: b.open,
+    progressRate: required > 0 ? pickedQty / required : 0,
+  };
+}
+
 // HRM Ownership Card integration
 export interface OwnershipCard {
   id?: string;
