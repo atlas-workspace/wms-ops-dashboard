@@ -377,9 +377,22 @@ function TopPerformers() {
 }
 
 function TeamSummary({ progress }: { progress: ShipmentProgress | null }) {
+  const [teamCount, setTeamCount] = useState(0);
+  useEffect(() => {
+    import("@/lib/team-setup").then(({ getMyTeamMembers }) => {
+      setTeamCount(getMyTeamMembers().length);
+    });
+  }, []);
+
   if (!progress) return <div className="text-sm text-gray-400 text-center py-4">No team data available</div>;
   return (
     <div className="space-y-2.5">
+      {teamCount > 0 && (
+        <div className="flex justify-between items-center text-xs mb-1">
+          <span className="text-gray-600">My Team</span>
+          <a href="/dashboard/employees" className="font-medium text-[#7c3aed] hover:underline">{teamCount} member{teamCount !== 1 ? "s" : ""}</a>
+        </div>
+      )}
       <InfoRow label="Required Units" value={progress.requiredQty?.toLocaleString() ?? "—"} />
       <InfoRow label="Shipped Units" value={progress.shippedQty?.toLocaleString() ?? "—"} valueColor="#10b981" />
       <InfoRow label="Picked Units" value={progress.pickedQty?.toLocaleString() ?? "—"} valueColor="#3b82f6" />

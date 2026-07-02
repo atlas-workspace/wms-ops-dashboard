@@ -3,12 +3,24 @@
 import { useEffect, useState, useCallback } from "react";
 import { useApp } from "@/lib/app-context";
 import { fetchOwnershipCards, OwnershipCard } from "@/lib/wms-api";
+import {
+  getMyTeamMembers,
+  addTeamMember,
+  removeTeamMember,
+  isOnMyTeam,
+  TeamMember,
+} from "@/lib/team-setup";
+
+type Tab = "directory" | "my-team";
 
 export default function EmployeesPage() {
   const { refreshKey } = useApp();
   const [cards, setCards] = useState<OwnershipCard[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>("directory");
+  const [myTeam, setMyTeam] = useState<TeamMember[]>([]);
+  const [search, setSearch] = useState("");
 
   const loadCards = useCallback(async () => {
     setLoading(true);
@@ -24,6 +36,28 @@ export default function EmployeesPage() {
   }, []);
 
   useEffect(() => { loadCards(); }, [loadCards, refreshKey]);
+  useEffect(() => { setMyTeam(getMyTeamMembers()); }, []);
+
+  function handleAddToTeam(card: OwnershipCard) {
+    addTeamMember(card);
+    setMyTeam(getMyTeamMembers());
+  }
+
+  function handleRemoveFromTeam(id: string) {
+    removeTeamMember(id);
+    setMyTeam(getMyTeamMembers());
+  }
+
+  const filteredCards = cards?.filter((c) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      (c.displayName || c.name || "").toLowerCase().includes(q) ||
+      (c.role || "").toLowerCase().includes(q) ||
+      (c.department || "").toLowerCase().includes(q) ||
+      (c.employeeId || "").toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="space-y-4">
@@ -40,50 +74,106 @@ export default function EmployeesPage() {
         </button>
       </div>
 
-      {loading ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
-          <div className="inline-block w-6 h-6 border-2 border-gray-200 border-t-[#7c3aed] rounded-full animate-spin"></div>
-          <p className="text-sm text-gray-500 mt-2">Loading employee data from HRM...</p>
-        </div>
-      ) : error ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
-          <svg className="w-12 h-12 mx-auto text-amber-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <h3 className="text-sm font-semibold text-gray-800 mb-1">HRM Service Unavailable</h3>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto">{error}</p>
-          <button onClick={loadCards} className="mt-3 text-xs text-[#7c3aed] hover:underline">Retry</button>
-        </div>
-      ) : cards === null || cards.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
-          <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <h3 className="text-sm font-semibold text-gray-800 mb-1">No Employee Records</h3>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto">
-            {cards === null
-              ? "HRM ownership-card service did not return employee data. This may require authentication or the service may be temporarily unavailable."
-              : "No ownership cards found for this facility. Records will appear when employees are assigned."}
-          </p>
-          <div className="mt-3 inline-flex items-center gap-1.5 text-xs text-gray-400 bg-gray-50 px-3 py-1.5 rounded-full">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-            </svg>
-            Source: hrm.item.com/ownership-card
-          </div>
-        </div>
+      {/* Tabs */}
+      <div className="flex gap-1 bg-gray-100 rounded-lg p-1 w-fit">
+        <button
+          onClick={() => setTab("directory")}
+          className={`px-4 py-1.5 text-sm rounded-md transition-colors ${
+            tab === "directory" ? "bg-white text-gray-900 shadow-sm font-medium" : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Employee Directory
+        </button>
+        <button
+          onClick={() => setTab("my-team")}
+          className={`px-4 py-1.5 text-sm rounded-md transition-colors flex items-center gap-1.5 ${
+            tab === "my-team" ? "bg-white text-gray-900 shadow-sm font-medium" : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          My Team
+          {myTeam.length > 0 && (
+            <span className="bg-[#7c3aed] text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+              {myTeam.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {tab === "my-team" ? (
+        <MyTeamView team={myTeam} onRemove={handleRemoveFromTeam} onSwitchTab={() => setTab("directory")} />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {cards.map((card, i) => (
-            <EmployeeCard key={card.id || card.employeeId || i} card={card} />
-          ))}
-        </div>
+        <>
+          {/* Search */}
+          {cards && cards.length > 0 && (
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search employees by name, role, or department..."
+              className="w-full max-w-md border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/30 text-gray-800"
+            />
+          )}
+
+          {loading ? (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+              <div className="inline-block w-6 h-6 border-2 border-gray-200 border-t-[#7c3aed] rounded-full animate-spin"></div>
+              <p className="text-sm text-gray-500 mt-2">Loading employee data from HRM...</p>
+            </div>
+          ) : error ? (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+              <svg className="w-12 h-12 mx-auto text-amber-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <h3 className="text-sm font-semibold text-gray-800 mb-1">HRM Service Unavailable</h3>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto">{error}</p>
+              <button onClick={loadCards} className="mt-3 text-xs text-[#7c3aed] hover:underline">Retry</button>
+            </div>
+          ) : !filteredCards || filteredCards.length === 0 ? (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+              <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <h3 className="text-sm font-semibold text-gray-800 mb-1">
+                {search ? "No Matching Employees" : "No Employee Records"}
+              </h3>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                {search
+                  ? `No employees matching "${search}"`
+                  : cards === null
+                  ? "HRM ownership-card service did not return employee data. This may require authentication or the service may be temporarily unavailable."
+                  : "No ownership cards found for this facility. Records will appear when employees are assigned."}
+              </p>
+              {!search && (
+                <div className="mt-3 inline-flex items-center gap-1.5 text-xs text-gray-400 bg-gray-50 px-3 py-1.5 rounded-full">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  Source: hrm.item.com/ownership-card
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredCards.map((card, i) => (
+                <EmployeeCard
+                  key={card.id || card.employeeId || i}
+                  card={card}
+                  onTeam={isOnMyTeam(card.id || card.employeeId || "")}
+                  onAdd={() => handleAddToTeam(card)}
+                  onRemove={() => handleRemoveFromTeam(card.id || card.employeeId || "")}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
 
-function EmployeeCard({ card }: { card: OwnershipCard }) {
+function EmployeeCard({ card, onTeam, onAdd, onRemove }: {
+  card: OwnershipCard; onTeam: boolean; onAdd: () => void; onRemove: () => void;
+}) {
   const name = card.displayName || card.name || card.userId || "Unknown";
   const initials = name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -109,9 +199,81 @@ function EmployeeCard({ card }: { card: OwnershipCard }) {
           </span>
         )}
       </div>
-      {card.employeeId && (
-        <div className="mt-2 text-[10px] text-gray-400 font-mono">ID: {card.employeeId}</div>
-      )}
+      <div className="mt-3 flex items-center justify-between">
+        {card.employeeId && (
+          <span className="text-[10px] text-gray-400 font-mono">ID: {card.employeeId}</span>
+        )}
+        <button
+          onClick={onTeam ? onRemove : onAdd}
+          className={`ml-auto text-xs px-2.5 py-1 rounded-md transition-colors ${
+            onTeam
+              ? "bg-[#7c3aed]/10 text-[#7c3aed] hover:bg-red-50 hover:text-red-600"
+              : "bg-gray-100 text-gray-600 hover:bg-[#7c3aed]/10 hover:text-[#7c3aed]"
+          }`}
+        >
+          {onTeam ? "On My Team ✓" : "+ Add to Team"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MyTeamView({ team, onRemove, onSwitchTab }: {
+  team: TeamMember[]; onRemove: (id: string) => void; onSwitchTab: () => void;
+}) {
+  if (team.length === 0) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+        <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <h3 className="text-sm font-semibold text-gray-800 mb-1">No Team Members Selected</h3>
+        <p className="text-xs text-gray-500 max-w-sm mx-auto">
+          Select team members from the Employee Directory to build your personal team view.
+          This is your dashboard team selection and does not change HR assignments.
+        </p>
+        <button onClick={onSwitchTab} className="mt-3 text-xs text-[#7c3aed] hover:underline">
+          Browse Employee Directory
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-gray-500">
+          {team.length} team member{team.length !== 1 ? "s" : ""} selected
+          <span className="ml-2 text-gray-400">— Personal dashboard selection</span>
+        </p>
+      </div>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-50">
+        {team.map((member) => (
+          <div key={member.id} className="px-4 py-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#6d28d9] flex items-center justify-center text-white text-xs font-medium shrink-0">
+              {member.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-gray-800 truncate">{member.name}</div>
+              <div className="text-xs text-gray-500">
+                {[member.role, member.department].filter(Boolean).join(" · ") || "Team member"}
+              </div>
+            </div>
+            <button
+              onClick={() => onRemove(member.id)}
+              className="text-xs text-gray-400 hover:text-red-500 transition-colors p-1"
+              title="Remove from team"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        ))}
+      </div>
+      <p className="text-[10px] text-gray-400 text-center">
+        This is your personal team view saved in this browser. It does not modify HR records.
+      </p>
     </div>
   );
 }
