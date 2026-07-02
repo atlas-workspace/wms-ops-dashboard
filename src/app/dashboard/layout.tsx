@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { getStoredAuth, clearAuth } from "@/lib/auth";
 import { AppProvider, useApp } from "@/lib/app-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { FacilitySelector } from "@/components/FacilitySelector";
 
 const menuItems = [
   { id: "team-dashboard", path: "/dashboard", label: "Team Dashboard", icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" },
@@ -115,19 +116,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-56 bg-[#1a1a2e] flex flex-col shrink-0">
           <div className="px-4 py-3 border-b border-white/10">
-            <select
-              value={facility}
-              onChange={(e) => setFacility(e.target.value)}
-              className="w-full bg-[#252540] text-white text-xs rounded px-2 py-1.5 border border-white/10 focus:outline-none"
-            >
-              <option value="LT_F1">Valley View</option>
-              <option value="LT_ORG-7759">Fontana</option>
-              <option value="LT_ORG-7941">Willow</option>
-              <option value="LT_ORG-61213">Joliet</option>
-              <option value="LT_ORG-35184">Savannah</option>
-              <option value="LT_F19">Seabrook</option>
-              <option value="BUENA_PARK">Buena Park</option>
-            </select>
+            <FacilitySelector value={facility} onChange={setFacility} />
           </div>
 
           <nav className="flex-1 py-2 overflow-y-auto scrollbar-thin">
