@@ -86,9 +86,9 @@ export default function TicketsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-bold text-gray-900">Support Tickets</h1>
-          <p className="text-sm text-gray-500">UNIS ITEM Ticket System</p>
+          <p className="text-sm text-gray-500">Item Ticket System</p>
         </div>
-        <button onClick={fetchTickets} className="text-xs text-[#0066cc] hover:underline flex items-center gap-1">
+        <button onClick={fetchTickets} className="text-xs text-[#7c3aed] hover:underline flex items-center gap-1">
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
@@ -112,7 +112,7 @@ export default function TicketsPage() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search tickets by keyword..."
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm pr-8 focus:outline-none focus:ring-2 focus:ring-[#0066cc]/30 text-gray-800"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm pr-8 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/30 text-gray-800"
           />
           {search && (
             <button type="button" onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -122,7 +122,7 @@ export default function TicketsPage() {
             </button>
           )}
         </div>
-        <button type="submit" className="px-4 py-2 bg-[#0066cc] text-white text-sm rounded-lg hover:bg-[#0055aa] transition-colors">
+        <button type="submit" className="px-4 py-2 bg-[#7c3aed] text-white text-sm rounded-lg hover:bg-[#6d28d9] transition-colors">
           Search
         </button>
       </form>
@@ -131,7 +131,7 @@ export default function TicketsPage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         {loading ? (
           <div className="p-8 text-center">
-            <div className="inline-block w-6 h-6 border-2 border-gray-200 border-t-[#0066cc] rounded-full animate-spin"></div>
+            <div className="inline-block w-6 h-6 border-2 border-gray-200 border-t-[#7c3aed] rounded-full animate-spin"></div>
             <p className="text-sm text-gray-500 mt-2">Loading tickets...</p>
           </div>
         ) : error ? (
@@ -141,9 +141,9 @@ export default function TicketsPage() {
             </svg>
             <h3 className="text-sm font-semibold text-gray-800 mb-1">Ticket Service Unavailable</h3>
             <p className="text-xs text-gray-500 max-w-sm mx-auto">
-              Unable to connect to the UNIS ITEM Ticket System. This may require additional authentication or the service may be temporarily unavailable.
+              Unable to connect to the Item Ticket System. This may require additional authentication or the service may be temporarily unavailable.
             </p>
-            <button onClick={fetchTickets} className="mt-3 text-xs text-[#0066cc] hover:underline">Retry</button>
+            <button onClick={fetchTickets} className="mt-3 text-xs text-[#7c3aed] hover:underline">Retry</button>
           </div>
         ) : tickets.length === 0 ? (
           <div className="p-8 text-center">
@@ -171,7 +171,7 @@ export default function TicketsPage() {
               <tbody className="divide-y divide-gray-50">
                 {tickets.map((ticket, i) => (
                   <tr key={ticket.id || i} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-2.5 font-mono text-xs text-[#0066cc] font-medium">
+                    <td className="px-4 py-2.5 font-mono text-xs text-[#7c3aed] font-medium">
                       {ticket.ticketNumber || `#${ticket.id}`}
                     </td>
                     <td className="px-4 py-2.5 text-gray-800 max-w-xs truncate">

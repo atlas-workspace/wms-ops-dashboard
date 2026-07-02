@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "UNIS VERINT - Operations Manager",
-  description: "WMS Operations Dashboard - Workforce Optimization",
+  title: "Operations Dashboard",
+  description: "Operations Dashboard - Warehouse, Workforce & Ticket Management",
 };
 
 export default function RootLayout({

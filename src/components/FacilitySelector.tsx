@@ -74,7 +74,7 @@ export function FacilitySelector({ value, onChange }: FacilitySelectorProps) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search warehouses..."
-              className="w-full bg-[#252540] text-white text-xs rounded px-2.5 py-1.5 border border-white/10 focus:outline-none focus:border-[#0066cc]/50 placeholder-gray-500"
+              className="w-full bg-[#252540] text-white text-xs rounded px-2.5 py-1.5 border border-white/10 focus:outline-none focus:border-[#7c3aed]/50 placeholder-gray-500"
             />
           </div>
           <div className="max-h-64 overflow-y-auto scrollbar-thin">
@@ -87,7 +87,7 @@ export function FacilitySelector({ value, onChange }: FacilitySelectorProps) {
                   onClick={() => handleSelect(f)}
                   className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between gap-2 transition-colors ${
                     f.id === value
-                      ? "bg-[#0066cc]/20 text-white"
+                      ? "bg-[#7c3aed]/20 text-white"
                       : "text-gray-300 hover:bg-white/5 hover:text-white"
                   }`}
                 >

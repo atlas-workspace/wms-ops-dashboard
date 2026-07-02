@@ -38,7 +38,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </p>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
-            className="mt-3 text-xs text-[#0066cc] hover:underline"
+            className="mt-3 text-xs text-[#7c3aed] hover:underline"
           >
             Try again
           </button>

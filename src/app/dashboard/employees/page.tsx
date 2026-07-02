@@ -32,7 +32,7 @@ export default function EmployeesPage() {
           <h1 className="text-lg font-bold text-gray-900">Employees</h1>
           <p className="text-sm text-gray-500">Team members and ownership cards from HRM</p>
         </div>
-        <button onClick={loadCards} className="text-xs text-[#0066cc] hover:underline flex items-center gap-1">
+        <button onClick={loadCards} className="text-xs text-[#7c3aed] hover:underline flex items-center gap-1">
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
@@ -42,7 +42,7 @@ export default function EmployeesPage() {
 
       {loading ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
-          <div className="inline-block w-6 h-6 border-2 border-gray-200 border-t-[#0066cc] rounded-full animate-spin"></div>
+          <div className="inline-block w-6 h-6 border-2 border-gray-200 border-t-[#7c3aed] rounded-full animate-spin"></div>
           <p className="text-sm text-gray-500 mt-2">Loading employee data from HRM...</p>
         </div>
       ) : error ? (
@@ -52,7 +52,7 @@ export default function EmployeesPage() {
           </svg>
           <h3 className="text-sm font-semibold text-gray-800 mb-1">HRM Service Unavailable</h3>
           <p className="text-xs text-gray-500 max-w-sm mx-auto">{error}</p>
-          <button onClick={loadCards} className="mt-3 text-xs text-[#0066cc] hover:underline">Retry</button>
+          <button onClick={loadCards} className="mt-3 text-xs text-[#7c3aed] hover:underline">Retry</button>
         </div>
       ) : cards === null || cards.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
@@ -90,7 +90,7 @@ function EmployeeCard({ card }: { card: OwnershipCard }) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0066cc] to-[#004499] flex items-center justify-center text-white text-sm font-medium shrink-0">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#6d28d9] flex items-center justify-center text-white text-sm font-medium shrink-0">
           {card.avatar ? (
             <img src={card.avatar} alt={name} className="w-full h-full rounded-full object-cover" />
           ) : initials}

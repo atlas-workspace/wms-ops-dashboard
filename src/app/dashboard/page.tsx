@@ -86,7 +86,7 @@ export default function TeamDashboardPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-5">
             <div className="relative">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#0066cc] to-[#004499] flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#6d28d9] flex items-center justify-center">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
@@ -101,8 +101,8 @@ export default function TeamDashboardPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-lg font-bold text-gray-900 uppercase tracking-wide">Team Today</h1>
-                <span className="text-lg font-bold text-[#0066cc]">—</span>
-                <span className="text-lg font-bold text-[#0066cc] uppercase">{facilityLabel}</span>
+                <span className="text-lg font-bold text-[#7c3aed]">—</span>
+                <span className="text-lg font-bold text-[#7c3aed] uppercase">{facilityLabel}</span>
               </div>
               <p className="text-sm text-gray-500 mt-0.5 flex items-center gap-2">
                 {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
@@ -137,7 +137,7 @@ export default function TeamDashboardPage() {
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-            <span className="w-1 h-4 bg-[#0066cc] rounded-full"></span>
+            <span className="w-1 h-4 bg-[#7c3aed] rounded-full"></span>
             Productivity By Employee
             <DataSourceBadge source="Live WMS" />
           </h3>
@@ -337,7 +337,7 @@ function TopPerformers() {
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
       </svg>
       <p>Requires HRM integration</p>
-      <button onClick={() => window.location.href = "/dashboard/employees"} className="text-xs text-[#0066cc] hover:underline mt-1">View Employees</button>
+      <button onClick={() => window.location.href = "/dashboard/employees"} className="text-xs text-[#7c3aed] hover:underline mt-1">View Employees</button>
     </div>
   );
 }
@@ -349,9 +349,9 @@ function TeamSummary({ progress }: { progress: ShipmentProgress | null }) {
       <InfoRow label="Required Units" value={progress.requiredQty?.toLocaleString() ?? "—"} />
       <InfoRow label="Shipped Units" value={progress.shippedQty?.toLocaleString() ?? "—"} valueColor="#10b981" />
       <InfoRow label="Picked Units" value={progress.pickedQty?.toLocaleString() ?? "—"} valueColor="#3b82f6" />
-      <InfoRow label="Progress Rate" value={`${Math.round(progress.progressRate * 100)}%`} valueColor="#0066cc" />
+      <InfoRow label="Progress Rate" value={`${Math.round(progress.progressRate * 100)}%`} valueColor="#7c3aed" />
       <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
-        <div className="h-full bg-[#0066cc] rounded-full" style={{ width: `${Math.min(progress.progressRate * 100, 100)}%` }}></div>
+        <div className="h-full bg-[#7c3aed] rounded-full" style={{ width: `${Math.min(progress.progressRate * 100, 100)}%` }}></div>
       </div>
     </div>
   );
@@ -365,7 +365,7 @@ function AlertsCoaching() {
       </svg>
       <p>Alert feed is not connected yet</p>
       <p className="text-xs text-gray-300 mt-1">No alert status is shown unless a live source is available.</p>
-      <button onClick={() => window.location.href = "/dashboard/coaching"} className="text-xs text-[#0066cc] hover:underline mt-1">View Coaching</button>
+      <button onClick={() => window.location.href = "/dashboard/coaching"} className="text-xs text-[#7c3aed] hover:underline mt-1">View Coaching</button>
     </div>
   );
 }

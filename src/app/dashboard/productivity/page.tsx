@@ -33,7 +33,7 @@ export default function ProductivityPage() {
 
       {loading ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
-          <div className="inline-block w-6 h-6 border-2 border-gray-200 border-t-[#0066cc] rounded-full animate-spin"></div>
+          <div className="inline-block w-6 h-6 border-2 border-gray-200 border-t-[#7c3aed] rounded-full animate-spin"></div>
         </div>
       ) : stats ? (
         <div className="grid grid-cols-3 gap-4">

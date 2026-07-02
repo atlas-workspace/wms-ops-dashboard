@@ -7,7 +7,7 @@
   --sidebar-text: #a0aec0;
   --sidebar-active: #ffffff;
   --header-bg: #ffffff;
-  --verint-blue: #0066cc;
+  --item-purple: #7c3aed;
   --card-bg: #ffffff;
   --kpi-green: #10b981;
   --kpi-blue: #3b82f6;
@@ -24,7 +24,7 @@
   --color-sidebar-text: var(--sidebar-text);
   --color-sidebar-active: var(--sidebar-active);
   --color-header-bg: var(--header-bg);
-  --color-verint-blue: var(--verint-blue);
+  --color-item-purple: var(--item-purple);
   --color-card-bg: var(--card-bg);
   --color-kpi-green: var(--kpi-green);
   --color-kpi-blue: var(--kpi-blue);

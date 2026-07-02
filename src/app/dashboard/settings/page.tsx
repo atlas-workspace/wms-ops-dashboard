@@ -26,7 +26,7 @@ export default function SettingsPage() {
             <select
               value={facility}
               onChange={(e) => setFacility(e.target.value)}
-              className="w-full border border-gray-200 rounded px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#0066cc]/30"
+              className="w-full border border-gray-200 rounded px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/30"
             >
               <option value="LT_F1">LT Facility 1</option>
               <option value="BUENA_PARK">Buena Park</option>
@@ -62,7 +62,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <button onClick={handleSave} className="px-4 py-2 bg-[#0066cc] text-white text-sm rounded hover:bg-[#0055aa] transition-colors">
+      <button onClick={handleSave} className="px-4 py-2 bg-[#7c3aed] text-white text-sm rounded hover:bg-[#6d28d9] transition-colors">
         {saved ? "Saved" : "Save Settings"}
       </button>
     </div>

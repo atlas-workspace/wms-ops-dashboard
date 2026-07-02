@@ -67,19 +67,17 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
     <div className="h-screen flex flex-col overflow-hidden">
       <header className="h-12 bg-white border-b border-gray-200 flex items-center px-4 shrink-0 z-50">
         <div className="flex items-center gap-3">
-          <div className="bg-[#1a1a2e] text-white font-bold text-sm px-2.5 py-0.5 rounded tracking-wide">
-            UNIS
+          <div className="bg-[#7c3aed] text-white font-bold text-sm px-2.5 py-0.5 rounded tracking-wide">
+            Item
           </div>
-          <div className="bg-[#0066cc] text-white font-semibold text-xs px-3 py-1 rounded">
-            VERINT <span className="font-normal">Workforce Optimization</span>
-          </div>
+          <span className="text-sm font-semibold text-gray-800">Operations Dashboard</span>
         </div>
         <div className="ml-6 flex items-center gap-2 text-sm text-gray-600">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
           <span className="text-gray-400">/</span>
-          <span className="font-medium text-gray-800">Operations Manager</span>
+          <span className="font-medium text-gray-800">Operations Dashboard</span>
           <span className="text-gray-400">/</span>
           <span className="text-gray-500">{facilityLabel}</span>
         </div>
@@ -100,7 +98,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
             {now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
           </span>
           <div className="flex items-center gap-2 ml-2">
-            <div className="w-7 h-7 rounded-full bg-[#0066cc] flex items-center justify-center text-white text-xs font-medium">
+            <div className="w-7 h-7 rounded-full bg-[#7c3aed] flex items-center justify-center text-white text-xs font-medium">
               {user.username.charAt(0).toUpperCase()}
             </div>
             <span className="text-gray-700 font-medium">{user.username}</span>
@@ -128,7 +126,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
                   onClick={() => router.push(item.path)}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${
                     isActive
-                      ? "bg-[#0066cc]/20 text-white border-l-3 border-[#0066cc]"
+                      ? "bg-[#7c3aed]/20 text-white border-l-3 border-[#7c3aed]"
                       : "text-gray-400 hover:text-white hover:bg-white/5"
                   }`}
                 >

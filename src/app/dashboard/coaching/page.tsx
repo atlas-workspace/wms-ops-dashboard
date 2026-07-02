@@ -25,13 +25,13 @@ export default function CoachingPage() {
 
       {loading ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
-          <div className="inline-block w-6 h-6 border-2 border-gray-200 border-t-[#0066cc] rounded-full animate-spin"></div>
+          <div className="inline-block w-6 h-6 border-2 border-gray-200 border-t-[#7c3aed] rounded-full animate-spin"></div>
         </div>
       ) : cards && cards.length > 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-50">
           {cards.map((card, i) => (
             <div key={card.id || i} className="px-4 py-3 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#0066cc]/10 flex items-center justify-center text-xs font-medium text-[#0066cc]">
+              <div className="w-8 h-8 rounded-full bg-[#7c3aed]/10 flex items-center justify-center text-xs font-medium text-[#7c3aed]">
                 {(card.displayName || card.name || "?").charAt(0).toUpperCase()}
               </div>
               <div className="flex-1">

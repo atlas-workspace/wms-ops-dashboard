@@ -15,7 +15,7 @@ export default function DashboardError({ reset }: { error: Error & { digest?: st
         </p>
         <button
           onClick={reset}
-          className="mt-5 rounded-lg bg-[#0066cc] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0055aa]"
+          className="mt-5 rounded-lg bg-[#7c3aed] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6d28d9]"
         >
           Reload dashboard
         </button>

@@ -42,12 +42,12 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
-            <div className="bg-white text-[#1a1a2e] font-bold text-xl px-3 py-1 rounded">UNIS</div>
-            <div className="bg-[#0066cc] text-white font-semibold text-sm px-3 py-1 rounded">
-              VERINT Workforce Optimization
+            <div className="bg-[#7c3aed] text-white font-bold text-xl px-3 py-1 rounded">Item</div>
+            <div className="bg-[#7c3aed] text-white font-semibold text-sm px-3 py-1 rounded">
+              Operations Dashboard
             </div>
           </div>
-          <p className="text-gray-400 text-sm mt-4">Operations Manager</p>
+          <p className="text-gray-400 text-sm mt-4">Warehouse, Workforce &amp; Ticket Management</p>
         </div>
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-xl p-8 space-y-5">
           <h2 className="text-xl font-semibold text-gray-800 text-center">Sign In</h2>
@@ -64,7 +64,7 @@ export default function LoginPage() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0066cc] text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-gray-900"
               placeholder="Enter username"
               required
               disabled={loading}
@@ -77,7 +77,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0066cc] text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-gray-900"
               placeholder="Enter password"
               required
               disabled={loading}
@@ -87,7 +87,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading || !username || !password}
-            className="w-full bg-[#0066cc] text-white py-2.5 rounded font-medium text-sm hover:bg-[#0055aa] disabled:opacity-50 transition-colors"
+            className="w-full bg-[#7c3aed] text-white py-2.5 rounded font-medium text-sm hover:bg-[#6d28d9] disabled:opacity-50 transition-colors"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>

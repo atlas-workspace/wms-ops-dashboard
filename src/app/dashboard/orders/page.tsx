@@ -82,7 +82,7 @@ export default function OrdersPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-xs border border-gray-200 rounded px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#0066cc]"
+            className="text-xs border border-gray-200 rounded px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#7c3aed]"
           >
             {ALL_STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -91,7 +91,7 @@ export default function OrdersPage() {
           <button
             onClick={fetchOrders}
             disabled={loading === "loading"}
-            className="flex items-center gap-1 text-xs text-[#0066cc] hover:text-[#004499] disabled:opacity-40"
+            className="flex items-center gap-1 text-xs text-[#7c3aed] hover:text-[#6d28d9] disabled:opacity-40"
           >
             <svg className={`w-3.5 h-3.5 ${loading === "loading" ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -104,7 +104,7 @@ export default function OrdersPage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         {loading === "loading" ? (
           <div className="p-8 text-center">
-            <div className="inline-block w-6 h-6 border-2 border-gray-200 border-t-[#0066cc] rounded-full animate-spin"></div>
+            <div className="inline-block w-6 h-6 border-2 border-gray-200 border-t-[#7c3aed] rounded-full animate-spin"></div>
             <p className="text-sm text-gray-500 mt-2">Loading orders from WMS...</p>
           </div>
         ) : loading === "error" ? (
@@ -116,7 +116,7 @@ export default function OrdersPage() {
             <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
               The order search service did not respond in time. This can happen when the facility has a large order volume. Try filtering by status or retry.
             </p>
-            <button onClick={fetchOrders} className="mt-3 text-xs text-[#0066cc] hover:underline">Retry</button>
+            <button onClick={fetchOrders} className="mt-3 text-xs text-[#7c3aed] hover:underline">Retry</button>
           </div>
         ) : orders.length === 0 ? (
           <div className="p-8 text-center">
