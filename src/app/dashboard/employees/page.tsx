@@ -11,6 +11,9 @@ import {
   TeamMember,
 } from "@/lib/team-setup";
 
+const PAYLOCITY_COMPANY_ID = process.env.NEXT_PUBLIC_PAYLOCITY_COMPANY_ID || "317433";
+const PAYLOCITY_PORTAL_URL = `https://go.paylocity.com/Home?__viewedCompanyId=${PAYLOCITY_COMPANY_ID}`;
+
 type Tab = "directory" | "my-team";
 
 export default function EmployeesPage() {
@@ -64,7 +67,7 @@ export default function EmployeesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-bold text-gray-900">Employees</h1>
-          <p className="text-sm text-gray-500">Team members and ownership cards from HRM</p>
+          <p className="text-sm text-gray-500">Team members from HRM with Paylocity portal access</p>
         </div>
         <button onClick={loadCards} className="text-xs text-[#7c3aed] hover:underline flex items-center gap-1">
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,6 +76,8 @@ export default function EmployeesPage() {
           Refresh
         </button>
       </div>
+
+      <PaylocityCard />
 
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 rounded-lg p-1 w-fit">
@@ -140,8 +145,8 @@ export default function EmployeesPage() {
                 {search
                   ? `No employees matching "${search}"`
                   : cards === null
-                  ? "HRM ownership-card service did not return employee data. This may require authentication or the service may be temporarily unavailable."
-                  : "No ownership cards found for this facility. Records will appear when employees are assigned."}
+                  ? "HRM ownership-card service did not return employee data. Paylocity API sync can be enabled by an administrator; until then use the Paylocity portal link above."
+                  : "No ownership cards found for this facility. Records will appear when employees are assigned in HRM or after Paylocity API sync is configured."}
               </p>
               {!search && (
                 <div className="mt-3 inline-flex items-center gap-1.5 text-xs text-gray-400 bg-gray-50 px-3 py-1.5 rounded-full">
@@ -167,6 +172,48 @@ export default function EmployeesPage() {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+function PaylocityCard() {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-[#0066a1]/10 flex items-center justify-center shrink-0">
+            <svg className="w-5 h-5 text-[#0066a1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-gray-800">Paylocity</h3>
+              <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                API sync not connected
+              </span>
+            </div>
+            <p className="text-xs text-gray-500">Company ID: {PAYLOCITY_COMPANY_ID}. Current dashboard employees continue to come from HRM until API credentials are configured.</p>
+          </div>
+        </div>
+        <a
+          href={PAYLOCITY_PORTAL_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-[#0066a1] rounded-lg hover:bg-[#005080] transition-colors"
+        >
+          Open Paylocity
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      </div>
+      <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+        <p className="text-xs text-gray-600">
+          This is wired as a safe portal connection for Paylocity. Automatic employee sync requires Paylocity admin API credentials; no credentials are stored in the app and no HR records are changed from this dashboard.
+        </p>
+      </div>
     </div>
   );
 }
