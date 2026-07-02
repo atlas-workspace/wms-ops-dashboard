@@ -2,8 +2,19 @@
 
 import { decodeJwt } from "jose";
 
-const IAM_BASE_URL = process.env.NEXT_PUBLIC_IAM_BASE_URL || "https://iam-staging.item.com/api";
-const WMS_API_BASE_URL = process.env.NEXT_PUBLIC_WMS_API_BASE_URL || "https://wms-staging.item.com/api";
+const IAM_BASE_URL = process.env.NEXT_PUBLIC_IAM_BASE_URL || "https://id.item.com";
+const WMS_API_BASE_URL = process.env.NEXT_PUBLIC_WMS_API_BASE_URL || "https://unis.item.com/api";
+
+function friendlySignInError(message?: string): string {
+  const normalized = (message || "").toLowerCase();
+  if (normalized.includes("not_found") || normalized.includes("404") || normalized.includes("get token failed")) {
+    return "We could not sign you in with those credentials. Please check your username and password, then try again.";
+  }
+  if (normalized.includes("failed") || normalized.includes("invalid") || normalized.includes("unauthorized")) {
+    return "We could not sign you in with those credentials. Please check your username and password, then try again.";
+  }
+  return "Sign in is currently unavailable. Please try again in a moment.";
+}
 
 export interface AuthUser {
   userId: string;
@@ -20,16 +31,24 @@ export interface TokenData {
 }
 
 export async function login(username: string, password: string): Promise<TokenData> {
-  const res = await fetch(`${IAM_BASE_URL}/auth/exchange-token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ grant_type: "password", username, password }),
-  });
-  const json = await res.json();
-  if (String(json.code) !== "0") {
-    throw new Error(json.msg || "Login failed");
+  let json: { code?: string | number; msg?: string; data?: { access_token?: string; refresh_token?: string; expires_in?: number } };
+  try {
+    const res = await fetch(`${IAM_BASE_URL}/auth/exchange-token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ grant_type: "password", username, password }),
+    });
+    json = await res.json();
+  } catch {
+    throw new Error("Sign in is currently unavailable. Please try again in a moment.");
   }
-  const { access_token, refresh_token, expires_in } = json.data;
+
+  if (String(json.code) !== "0" || !json.data?.access_token) {
+    throw new Error(friendlySignInError(json.msg));
+  }
+  const access_token = json.data.access_token;
+  const refresh_token = json.data.refresh_token || "";
+  const expires_in = json.data.expires_in || 0;
   const payload = decodeJwt(access_token);
   const data = (payload as Record<string, unknown>).data as Record<string, string>;
   return {
