@@ -140,7 +140,7 @@ export default function TeamDashboardPage() {
               </div>
               <p className="text-sm text-gray-500 mt-0.5 flex items-center gap-2">
                 {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
-                <DataSourceBadge source="Live WMS" />
+                <DataSourceBadge source={data.shipmentSource === "orders" ? "Order-derived" : "Live WMS"} />
               </p>
             </div>
           </div>
@@ -172,8 +172,8 @@ export default function TeamDashboardPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <span className="w-1 h-4 bg-[#7c3aed] rounded-full"></span>
-            Productivity By Employee
-            <DataSourceBadge source="Live WMS" />
+            Productivity By Status
+            <DataSourceBadge source={data.shipmentSource === "orders" ? "Order-derived" : "Live WMS"} />
           </h3>
           <ProductivityBars progress={data.progress} loading={data.loading} />
         </div>
@@ -181,7 +181,7 @@ export default function TeamDashboardPage() {
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <span className="w-1 h-4 bg-[#10b981] rounded-full"></span>
             Orders By Status
-            <DataSourceBadge source="Live WMS" />
+            <DataSourceBadge source={data.shipmentSource === "orders" ? "Order-derived" : "Live WMS"} />
           </h3>
           <OrdersDonutChart progress={data.progress} loading={data.loading} onSegmentClick={(status) => router.push(`/dashboard/orders?status=${status}`)} />
         </div>
@@ -201,7 +201,7 @@ export default function TeamDashboardPage() {
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <span className="w-1 h-4 bg-[#8b5cf6] rounded-full"></span>
             Case Information
-            <DataSourceBadge source="Live WMS" />
+            <DataSourceBadge source={data.shipmentSource === "orders" ? "Order-derived" : "Live WMS"} />
           </h3>
           <CaseInformation shipment={data.shipment} />
         </div>
@@ -217,7 +217,7 @@ export default function TeamDashboardPage() {
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <span className="w-1 h-4 bg-[#14b8a6] rounded-full"></span>
             Team Summary
-            <DataSourceBadge source="Live WMS" />
+            <DataSourceBadge source={data.shipmentSource === "orders" ? "Order-derived" : "Live WMS"} />
           </h3>
           <TeamSummary progress={data.progress} />
         </div>
