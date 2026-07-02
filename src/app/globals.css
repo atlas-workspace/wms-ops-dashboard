@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f0f2f5;
+  --foreground: #1a1a2e;
+  --sidebar-bg: #1a1a2e;
+  --sidebar-text: #a0aec0;
+  --sidebar-active: #ffffff;
+  --header-bg: #ffffff;
+  --verint-blue: #0066cc;
+  --card-bg: #ffffff;
+  --kpi-green: #10b981;
+  --kpi-blue: #3b82f6;
+  --kpi-orange: #f59e0b;
+  --kpi-red: #ef4444;
+  --kpi-purple: #8b5cf6;
+  --kpi-teal: #14b8a6;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sidebar-bg: var(--sidebar-bg);
+  --color-sidebar-text: var(--sidebar-text);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-header-bg: var(--header-bg);
+  --color-verint-blue: var(--verint-blue);
+  --color-card-bg: var(--card-bg);
+  --color-kpi-green: var(--kpi-green);
+  --color-kpi-blue: var(--kpi-blue);
+  --color-kpi-orange: var(--kpi-orange);
+  --color-kpi-red: var(--kpi-red);
+  --color-kpi-purple: var(--kpi-purple);
+  --color-kpi-teal: var(--kpi-teal);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+}
