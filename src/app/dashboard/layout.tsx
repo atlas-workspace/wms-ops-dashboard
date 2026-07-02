@@ -6,6 +6,7 @@ import { getStoredAuth, clearAuth } from "@/lib/auth";
 import { AppProvider, useApp } from "@/lib/app-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { FacilitySelector } from "@/components/FacilitySelector";
+import { ModuleSelector } from "@/components/ModuleSelector";
 
 const menuItems = [
   { id: "team-dashboard", path: "/dashboard", label: "Team Dashboard", icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" },
@@ -66,12 +67,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <header className="h-12 bg-white border-b border-gray-200 flex items-center px-4 shrink-0 z-50">
-        <div className="flex items-center gap-3">
-          <div className="bg-[#7c3aed] text-white font-bold text-sm px-2.5 py-0.5 rounded tracking-wide">
-            Item
-          </div>
-          <span className="text-sm font-semibold text-gray-800">Operations Dashboard</span>
-        </div>
+        <ModuleSelector />
         <div className="ml-6 flex items-center gap-2 text-sm text-gray-600">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
