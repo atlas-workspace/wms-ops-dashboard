@@ -27,7 +27,7 @@ const menuItems = [
 function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { facility, setFacility, triggerRefresh } = useApp();
+  const { facility, setFacility, triggerRefresh, activeModule, setActiveModule } = useApp();
   const [user, setUser] = useState<{ username: string; tenantId: string } | null>(null);
   const [now, setNow] = useState(new Date());
 
@@ -55,6 +55,13 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const nextModule = pathname.startsWith("/dashboard/equipment") ? "equipment-hub" : "ops-dashboard";
+    if (activeModule !== nextModule) {
+      setActiveModule(nextModule);
+    }
+  }, [pathname, activeModule, setActiveModule]);
+
   function handleLogout() {
     clearAuth();
     router.push("/");
@@ -63,6 +70,8 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   if (!user) return null;
 
   const facilityLabel = facility.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const isOperationsModule = activeModule === "ops-dashboard";
+  const moduleLabel = isOperationsModule ? "Operations Dashboard" : "Equipment & Maintenance Hub";
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -73,9 +82,13 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
           <span className="text-gray-400">/</span>
-          <span className="font-medium text-gray-800">Operations Dashboard</span>
-          <span className="text-gray-400">/</span>
-          <span className="text-gray-500">{facilityLabel}</span>
+          <span className="font-medium text-gray-800">{moduleLabel}</span>
+          {isOperationsModule && (
+            <>
+              <span className="text-gray-400">/</span>
+              <span className="text-gray-500">{facilityLabel}</span>
+            </>
+          )}
         </div>
         <div className="ml-auto flex items-center gap-3 text-sm">
           <button
@@ -108,58 +121,77 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-56 bg-[#1a1a2e] flex flex-col shrink-0">
-          <div className="px-4 py-3 border-b border-white/10">
-            <FacilitySelector value={facility} onChange={setFacility} />
-          </div>
+        {isOperationsModule ? (
+          <aside className="w-56 bg-[#1a1a2e] flex flex-col shrink-0">
+            <div className="px-4 py-3 border-b border-white/10">
+              <FacilitySelector value={facility} onChange={setFacility} />
+            </div>
 
-          <nav className="flex-1 py-2 overflow-y-auto scrollbar-thin">
-            {menuItems.map((item) => {
-              const isActive = pathname === item.path || (item.path === "/dashboard" && pathname === "/dashboard");
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => router.push(item.path)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${
-                    isActive
-                      ? "bg-[#7c3aed]/20 text-white border-l-3 border-[#7c3aed]"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+            <nav className="flex-1 py-2 overflow-y-auto scrollbar-thin">
+              {menuItems.map((item) => {
+                const isActive = pathname === item.path || (item.path === "/dashboard" && pathname === "/dashboard");
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => router.push(item.path)}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${
+                      isActive
+                        ? "bg-[#7c3aed]/20 text-white border-l-3 border-[#7c3aed]"
+                        : "text-gray-400 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                    </svg>
+                    <span className={isActive ? "font-medium" : ""}>{item.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+
+            <div className="px-4 py-3 border-t border-white/10">
+              <div className="bg-[#252540] rounded-lg p-3">
+                <div className="flex items-center justify-center mb-2">
+                  <svg className="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
-                  <span className={isActive ? "font-medium" : ""}>{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-
-          <div className="px-4 py-3 border-t border-white/10">
-            <div className="bg-[#252540] rounded-lg p-3">
-              <div className="flex items-center justify-center mb-2">
-                <svg className="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
+                </div>
+                <div className="text-[10px] text-gray-400 uppercase tracking-wider text-center">Warehouse</div>
+                <div className="text-[10px] text-gray-500 mt-0.5 text-center">System Active</div>
               </div>
-              <div className="text-[10px] text-gray-400 uppercase tracking-wider text-center">Warehouse</div>
-              <div className="text-[10px] text-gray-500 mt-0.5 text-center">System Active</div>
             </div>
-          </div>
 
-          <div className="px-4 py-3 border-t border-white/10">
-            <div className="flex items-center gap-2 text-xs text-gray-400">
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-              <span>System Online</span>
+            <div className="px-4 py-3 border-t border-white/10">
+              <div className="flex items-center gap-2 text-xs text-gray-400">
+                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                <span>System Online</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-500 mt-1.5">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Last refresh: just now</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1.5">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span>Last refresh: just now</span>
+          </aside>
+        ) : (
+          <aside className="w-56 bg-[#1a1a2e] flex flex-col shrink-0">
+            <nav className="flex-1 py-2">
+              <button
+                onClick={() => router.push("/dashboard/equipment")}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm bg-[#7c3aed]/20 text-white border-l-3 border-[#7c3aed]"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="font-medium">Equipment Hub</span>
+              </button>
+            </nav>
+            <div className="px-4 py-3 border-t border-white/10 text-xs text-gray-500">
+              Operations Dashboard pages are hidden until the Operations Dashboard business module is selected.
             </div>
-          </div>
-        </aside>
+          </aside>
+        )}
 
         <main className="flex-1 overflow-y-auto bg-[#f0f2f5] p-5">
           <ErrorBoundary>{children}</ErrorBoundary>
